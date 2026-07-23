@@ -4,13 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Coin Flip Online — Heads or Tails — Tabutility</title>
-<meta name="description" content="Free online coin flip. Flip a virtual coin and get heads or tails. Tracks your flip history and stats."/>
+<meta name="description" content="Free online coin flip. Flip a virtual coin and get heads or tails instantly. Tracks your flip history and stats."/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;min-height:100vh}
@@ -18,111 +15,284 @@ nav{background:#1e293b;border-bottom:1px solid #334155;padding:14px 24px;display
 nav a{color:#94a3b8;text-decoration:none;font-size:14px}nav a:hover{color:#f1f5f9}
 nav .brand{color:#38bdf8;font-weight:700;font-size:18px}
 .ad-banner{background:#1e293b;border-bottom:1px solid #334155;padding:8px;text-align:center}
-@keyframes flip{0%{transform:rotateY(0deg)}50%{transform:rotateY(900deg)}100%{transform:rotateY(1800deg)}}
-.flipping{animation:flip 1s ease-in-out}
+#app{max-width:520px;margin:40px auto;padding:0 20px}
+h1{font-size:28px;font-weight:700;margin-bottom:8px;text-align:center}
+.subtitle{color:#94a3b8;margin-bottom:32px;text-align:center}
+.card{background:#1e293b;border-radius:20px;padding:40px 24px;text-align:center;border:1px solid #334155;margin-bottom:20px}
+#coin-canvas{display:block;margin:0 auto 28px;cursor:pointer}
+#result-label{font-size:40px;font-weight:800;letter-spacing:1px;margin-bottom:8px;min-height:50px}
+#streak{font-size:14px;color:#38bdf8;margin-bottom:16px;min-height:20px}
+#flip-btn{background:#38bdf8;color:#0f172a;border:none;border-radius:12px;padding:14px 48px;font-size:18px;font-weight:700;cursor:pointer;margin-top:8px}
+#flip-btn:disabled{background:#334155;color:#64748b;cursor:not-allowed}
+.stats-card{background:#1e293b;border-radius:16px;padding:20px;border:1px solid #334155;margin-bottom:16px;display:none}
+.stat-boxes{display:flex;gap:16px;margin-bottom:12px}
+.stat-box{flex:1;text-align:center;background:#0f172a;border-radius:10px;padding:12px 8px}
+.stat-num{font-size:28px;font-weight:700}
+.stat-lbl{font-size:12px;color:#64748b}
+.bar-track{background:#334155;border-radius:6px;height:10px;overflow:hidden}
+.bar-fill{height:100%;background:#f59e0b;border-radius:6px;transition:width .4s}
+#reset-btn{width:100%;margin-top:12px;background:none;border:1px solid #334155;color:#94a3b8;border-radius:8px;padding:7px;font-size:13px;cursor:pointer}
+.history-card{background:#1e293b;border-radius:16px;padding:20px;border:1px solid #334155;display:none}
+.history-card h2{font-size:15px;font-weight:600;margin-bottom:12px}
+#chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border-radius:6px;padding:3px 9px;font-size:12px;font-weight:700}
 </style>
 </head>
 <body>
 <nav><span class="brand">⚡ Tabutility</span><a href="https://tabutility.com">← All Tools</a></nav>
 <div class="ad-banner"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
-<div id="root"></div>
-<script type="text/babel">
-//<![CDATA[
-const { useState, useRef } = React;
-
-export default function CoinFlip() {
-  const [result, setResult] = useState(null);
-  const [flipping, setFlipping] = useState(false);
-  const [history, setHistory] = useState([]);
-  const [heads, setHeads] = useState(0);
-  const [tails, setTails] = useState(0);
-  const [streak, setStreak] = useState({ val: null, count: 0 });
-  const coinRef = useRef(null);
-
-  const flip = () => {
-    if (flipping) return;
-    setFlipping(true);
-    setResult(null);
-    if (coinRef.current) {
-      coinRef.current.classList.remove('flipping');
-      void coinRef.current.offsetWidth;
-      coinRef.current.classList.add('flipping');
-    }
-    setTimeout(() => {
-      const r = Math.random() < 0.5 ? 'Heads' : 'Tails';
-      setResult(r);
-      setHistory(h => [r, ...h.slice(0,49)]);
-      if (r === 'Heads') setHeads(h => h+1); else setTails(t => t+1);
-      setStreak(s => s.val === r ? {val:r,count:s.count+1} : {val:r,count:1});
-      setFlipping(false);
-    }, 1000);
-  };
-
-  const total = heads + tails;
-  const hPct = total ? Math.round(heads/total*100) : 50;
-  const tPct = total ? Math.round(tails/total*100) : 50;
-
-  return (
-    <div style={{maxWidth:520,margin:'40px auto',padding:'0 20px'}}>
-      <h1 style={{textAlign:'center',fontSize:28,fontWeight:700,marginBottom:8}}>Coin Flip</h1>
-      <p style={{textAlign:'center',color:'#94a3b8',marginBottom:40}}>Click the coin or the button — heads or tails?</p>
-
-      <div style={{background:'#1e293b',borderRadius:20,padding:'40px 24px',textAlign:'center',border:'1px solid #334155',marginBottom:24}}>
-        <div ref={coinRef} onClick={flip} style={{width:180,height:180,borderRadius:'50%',margin:'0 auto 32px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',background: result==='Heads'?'linear-gradient(135deg,#f59e0b,#d97706)':result==='Tails'?'linear-gradient(135deg,#94a3b8,#64748b)':'linear-gradient(135deg,#334155,#1e293b)',border:'6px solid',borderColor:result==='Heads'?'#fbbf24':result==='Tails'?'#94a3b8':'#475569',boxShadow:'0 8px 32px rgba(0,0,0,0.4)',transition:'background 0.3s',fontSize:72,userSelect:'none'}}>
-          {result==='Heads'?'♛':result==='Tails'?'🦅':'🪙'}
-        </div>
-
-        {result && !flipping && (
-          <div style={{fontSize:40,fontWeight:800,color:result==='Heads'?'#f59e0b':'#94a3b8',marginBottom:8,letterSpacing:1}}>{result.toUpperCase()}</div>
-        )}
-        {flipping && <div style={{fontSize:24,color:'#64748b',marginBottom:8}}>Flipping…</div>}
-        {!result && !flipping && <div style={{fontSize:20,color:'#475569',marginBottom:8}}>Click to flip</div>}
-
-        {streak.count >= 3 && !flipping && (
-          <div style={{fontSize:14,color:'#38bdf8',marginBottom:16}}>🔥 {streak.count} {streak.val} in a row!</div>
-        )}
-
-        <button onClick={flip} disabled={flipping} style={{background:flipping?'#334155':'#38bdf8',color:flipping?'#64748b':'#0f172a',border:'none',borderRadius:12,padding:'14px 48px',fontSize:18,fontWeight:700,cursor:flipping?'not-allowed':'pointer',marginTop:8}}>
-          {flipping ? 'Flipping…' : 'Flip Coin'}
-        </button>
-      </div>
-
-      {total > 0 && (
-        <div style={{background:'#1e293b',borderRadius:16,padding:20,border:'1px solid #334155',marginBottom:16}}>
-          <h2 style={{fontSize:15,fontWeight:600,marginBottom:14}}>Stats — {total} flip{total!==1?'s':''}</h2>
-          <div style={{display:'flex',gap:16,marginBottom:12}}>
-            <div style={{flex:1,textAlign:'center',background:'#0f172a',borderRadius:10,padding:'12px 8px'}}>
-              <div style={{fontSize:28,fontWeight:700,color:'#f59e0b'}}>{heads}</div>
-              <div style={{fontSize:12,color:'#64748b'}}>Heads ({hPct}%)</div>
-            </div>
-            <div style={{flex:1,textAlign:'center',background:'#0f172a',borderRadius:10,padding:'12px 8px'}}>
-              <div style={{fontSize:28,fontWeight:700,color:'#94a3b8'}}>{tails}</div>
-              <div style={{fontSize:12,color:'#64748b'}}>Tails ({tPct}%)</div>
-            </div>
-          </div>
-          <div style={{background:'#334155',borderRadius:6,height:10,overflow:'hidden'}}>
-            <div style={{width:`${hPct}%`,height:'100%',background:'#f59e0b',transition:'width 0.4s'}}/>
-          </div>
-          <button onClick={()=>{setHistory([]);setHeads(0);setTails(0);setResult(null);setStreak({val:null,count:0});}} style={{width:'100%',marginTop:12,background:'none',border:'1px solid #334155',color:'#94a3b8',borderRadius:8,padding:'7px',fontSize:13,cursor:'pointer'}}>Reset stats</button>
-        </div>
-      )}
-
-      {history.length > 0 && (
-        <div style={{background:'#1e293b',borderRadius:16,padding:20,border:'1px solid #334155'}}>
-          <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>History (last 50)</h2>
-          <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
-            {history.map((h,i) => (
-              <span key={i} style={{background:h==='Heads'?'#f59e0b':'#475569',color:'#0f172a',borderRadius:6,padding:'3px 9px',fontSize:12,fontWeight:700}}>{h[0]}</span>
-            ))}
-          </div>
-        </div>
-      )}
+<div id="app">
+  <h1>Coin Flip</h1>
+  <p class="subtitle">Click the coin or the button — heads or tails?</p>
+  <div class="card">
+    <canvas id="coin-canvas" width="180" height="180" onclick="doFlip()"></canvas>
+    <div id="result-label"></div>
+    <div id="streak"></div>
+    <button id="flip-btn" onclick="doFlip()">Flip Coin</button>
+  </div>
+  <div class="stats-card" id="stats-card">
+    <h2 id="stats-title">Stats</h2>
+    <div class="stat-boxes">
+      <div class="stat-box"><div class="stat-num" id="heads-num" style="color:#f59e0b">0</div><div class="stat-lbl" id="heads-lbl">Heads (50%)</div></div>
+      <div class="stat-box"><div class="stat-num" id="tails-num" style="color:#94a3b8">0</div><div class="stat-lbl" id="tails-lbl">Tails (50%)</div></div>
     </div>
-  );
+    <div class="bar-track"><div class="bar-fill" id="bar-fill" style="width:50%"></div></div>
+    <button id="reset-btn" onclick="resetStats()">Reset stats</button>
+  </div>
+  <div class="history-card" id="history-card">
+    <h2>History (last 50)</h2>
+    <div id="chips"></div>
+  </div>
+</div>
+<script>
+var canvas = document.getElementById('coin-canvas');
+var ctx = canvas.getContext('2d');
+var CX = canvas.width / 2;   // 90
+var CY = canvas.height / 2;  // 90
+var R  = 80;
+
+var flipping = false;
+var rafId = null;
+var heads = 0;
+var tails = 0;
+var streakVal = null;
+var streakCount = 0;
+var flipHistory = [];
+
+// coin face: 'idle' | 'heads' | 'tails'
+var currentFace = 'idle';
+
+var resultLabel = document.getElementById('result-label');
+var streakEl    = document.getElementById('streak');
+var flipBtn     = document.getElementById('flip-btn');
+var statsCard   = document.getElementById('stats-card');
+var statsTitle  = document.getElementById('stats-title');
+var headsNum    = document.getElementById('heads-num');
+var tailsNum    = document.getElementById('tails-num');
+var headsLbl    = document.getElementById('heads-lbl');
+var tailsLbl    = document.getElementById('tails-lbl');
+var barFill     = document.getElementById('bar-fill');
+var histCard    = document.getElementById('history-card');
+var chipsEl     = document.getElementById('chips');
+
+// ── Drawing ───────────────────────────────────────────────────────────────────
+function drawCoin(scaleX, face) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  // Scale around centre on X axis to create the "flip" squish effect
+  ctx.translate(CX, CY);
+  ctx.scale(scaleX, 1);
+  ctx.translate(-CX, -CY);
+
+  // Drop shadow
+  ctx.shadowColor = 'rgba(0,0,0,0.5)';
+  ctx.shadowBlur = 18;
+  ctx.shadowOffsetY = 6;
+
+  // Coin circle
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, 2 * Math.PI);
+
+  if (face === 'heads') {
+    // Gold gradient
+    var gH = ctx.createRadialGradient(CX - 20, CY - 20, 5, CX, CY, R);
+    gH.addColorStop(0, '#fde68a');
+    gH.addColorStop(0.5, '#f59e0b');
+    gH.addColorStop(1, '#b45309');
+    ctx.fillStyle = gH;
+  } else if (face === 'tails') {
+    // Silver gradient
+    var gT = ctx.createRadialGradient(CX - 20, CY - 20, 5, CX, CY, R);
+    gT.addColorStop(0, '#e2e8f0');
+    gT.addColorStop(0.5, '#94a3b8');
+    gT.addColorStop(1, '#334155');
+    ctx.fillStyle = gT;
+  } else {
+    // Idle — neutral
+    var gI = ctx.createRadialGradient(CX - 20, CY - 20, 5, CX, CY, R);
+    gI.addColorStop(0, '#475569');
+    gI.addColorStop(1, '#1e293b');
+    ctx.fillStyle = gI;
+  }
+  ctx.fill();
+
+  // Rim
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = face === 'heads' ? '#fbbf24' : face === 'tails' ? '#94a3b8' : '#475569';
+  ctx.lineWidth = 6;
+  ctx.stroke();
+
+  // Text / symbol — only draw when coin is wide enough to be readable
+  if (Math.abs(scaleX) > 0.3) {
+    ctx.shadowColor = 'transparent';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    if (face === 'heads') {
+      ctx.fillStyle = '#78350f';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText('HEADS', CX, CY + 28);
+      ctx.font = 'bold 46px sans-serif';
+      ctx.fillStyle = '#92400e';
+      ctx.fillText('H', CX, CY - 12);
+    } else if (face === 'tails') {
+      ctx.fillStyle = '#1e293b';
+      ctx.font = 'bold 22px sans-serif';
+      ctx.fillText('TAILS', CX, CY + 28);
+      ctx.font = 'bold 46px sans-serif';
+      ctx.fillStyle = '#334155';
+      ctx.fillText('T', CX, CY - 12);
+    } else {
+      ctx.fillStyle = '#64748b';
+      ctx.font = 'bold 36px sans-serif';
+      ctx.fillText('?', CX, CY);
+    }
+  }
+
+  ctx.restore();
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<CoinFlip />);
-//]]>
+// ── Animation ─────────────────────────────────────────────────────────────────
+function doFlip() {
+  if (flipping) return;
+  flipping = true;
+  flipBtn.disabled = true;
+  flipBtn.textContent = 'Flipping…';
+  resultLabel.textContent = '';
+  streakEl.textContent = '';
+
+  var result = Math.random() < 0.5 ? 'Heads' : 'Tails';
+  var duration = 900;       // ms total
+  var startTime = null;
+
+  // During the first half we show the outgoing face (or idle),
+  // during the second half we show the result face.
+  var outFace = currentFace === 'idle' ? 'idle' : currentFace;
+
+  function animate(ts) {
+    if (!startTime) startTime = ts;
+    var t = Math.min((ts - startTime) / duration, 1);
+
+    // scaleX: 1 → 0 → 1, completing ~3 half-turns
+    var cycles = 3;   // number of half-flips
+    var scaleX = Math.cos(t * cycles * Math.PI);
+
+    // Switch face at each zero-crossing of scaleX;
+    // on the final half-turn show the result face
+    var halfTurn = Math.floor(t * cycles);
+    var face;
+    if (t >= 1) {
+      face = result === 'Heads' ? 'heads' : 'tails';
+    } else if (halfTurn >= cycles - 1) {
+      face = result === 'Heads' ? 'heads' : 'tails';
+    } else {
+      face = halfTurn % 2 === 0 ? outFace : (result === 'Heads' ? 'heads' : 'tails');
+    }
+
+    drawCoin(scaleX, face);
+
+    if (t < 1) {
+      rafId = requestAnimationFrame(animate);
+    } else {
+      // Animation done
+      currentFace = result === 'Heads' ? 'heads' : 'tails';
+      drawCoin(1, currentFace);
+
+      if (result === 'Heads') {
+        resultLabel.textContent = 'HEADS';
+        resultLabel.style.color = '#f59e0b';
+        heads++;
+      } else {
+        resultLabel.textContent = 'TAILS';
+        resultLabel.style.color = '#94a3b8';
+        tails++;
+      }
+
+      if (streakVal === result) {
+        streakCount++;
+      } else {
+        streakVal = result;
+        streakCount = 1;
+      }
+      if (streakCount >= 3) {
+        streakEl.textContent = '🔥 ' + streakCount + ' ' + result + ' in a row!';
+      }
+
+      flipHistory.unshift(result);
+      if (flipHistory.length > 50) flipHistory.pop();
+
+      updateStats();
+      updateHistory();
+
+      flipping = false;
+      flipBtn.disabled = false;
+      flipBtn.textContent = 'Flip Coin';
+    }
+  }
+
+  rafId = requestAnimationFrame(animate);
+}
+
+function updateStats() {
+  var total = heads + tails;
+  if (!total) return;
+  statsCard.style.display = 'block';
+  var hPct = Math.round(heads / total * 100);
+  statsTitle.textContent = 'Stats — ' + total + ' flip' + (total !== 1 ? 's' : '');
+  headsNum.textContent = heads;
+  tailsNum.textContent = tails;
+  headsLbl.textContent = 'Heads (' + hPct + '%)';
+  tailsLbl.textContent = 'Tails (' + (100 - hPct) + '%)';
+  barFill.style.width = hPct + '%';
+}
+
+function updateHistory() {
+  if (!flipHistory.length) { histCard.style.display = 'none'; return; }
+  histCard.style.display = 'block';
+  chipsEl.innerHTML = '';
+  flipHistory.forEach(function(h) {
+    var chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.style.background = h === 'Heads' ? '#f59e0b' : '#475569';
+    chip.style.color = h === 'Heads' ? '#0f172a' : '#f1f5f9';
+    chip.textContent = h[0];
+    chipsEl.appendChild(chip);
+  });
+}
+
+function resetStats() {
+  heads = 0; tails = 0; streakVal = null; streakCount = 0;
+  flipHistory = []; currentFace = 'idle';
+  statsCard.style.display = 'none';
+  histCard.style.display = 'none';
+  resultLabel.textContent = '';
+  streakEl.textContent = '';
+  drawCoin(1, 'idle');
+}
+
+// Initial draw
+drawCoin(1, 'idle');
 </script>
 </body>
 </html>
