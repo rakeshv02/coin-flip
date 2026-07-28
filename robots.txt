@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://coin-flip.tabutility.com/sitemap.xml
